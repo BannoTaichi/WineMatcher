@@ -1,2 +1,4 @@
 python==3.10.16
 pandas==2.2.3
+transformers==4.51.3
+sentencepiece==0.1.99

@@ -6,13 +6,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import pandas as pd
 
-# driverの設定
-CHROMEDRIVER = "C:\chromedriver-win64\chromedriver.exe"
 
-options = webdriver.ChromeOptions()
-options.add_argument("--incognito")
-cService = webdriver.ChromeService(executable_path=CHROMEDRIVER)
-driver = webdriver.Chrome(service=cService)
+def setup_driver(driver_path):
+    options = webdriver.ChromeOptions()
+    options.add_argument("--incognito")  # シークレットモードで起動
+    cService = webdriver.ChromeService(executable_path=driver_path)
+    return webdriver.Chrome(service=cService, options=options)
 
 
 def collect_info(url, filename, SAMPLE_SIZE=40):
@@ -100,8 +99,12 @@ def get_text():
 
 
 if __name__ == "__main__":
+    CHROMEDRIVER = "C:\chromedriver-win64\chromedriver.exe"
     HOME_URL = "https://www.enoteca.co.jp/ranking/"
     CSV_FOLDER = "static/csv/"
+
+    # driverの設定
+    driver = setup_driver(CHROMEDRIVER)
 
     redwine_url = f"{HOME_URL}red?td_seg=tds773385tds990077"
     whitewine_url = f"{HOME_URL}white?td_seg=tds990077tds773385"
