@@ -1,12 +1,12 @@
 # モジュールのインポート
 from time import sleep
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import pandas as pd
 
 
+# WebDriverの設定関数
 def setup_driver(driver_path):
     options = webdriver.ChromeOptions()
     options.add_argument("--incognito")  # シークレットモードで起動
@@ -14,23 +14,22 @@ def setup_driver(driver_path):
     return webdriver.Chrome(service=cService, options=options)
 
 
+# 情報を収集する関数
 def collect_info(url, filename, SAMPLE_SIZE=40):
     if SAMPLE_SIZE > 40:
         SAMPLE_SIZE = 40
 
-    # 対象サイトにアクセス
-    driver.get(url)
+    driver.get(url)  # 対象サイトにアクセス
 
-    # ワインのリンクを取得
-    links = get_link(sample=SAMPLE_SIZE)
+    links = get_link(sample=SAMPLE_SIZE)  # ワインのリンクを取得
     print(f"{len(links)}件のワインリンクを取得しました。")
 
-    # 各ワインの詳細ページにアクセスして情報を取得
-    df = create_df(links)
+    df = create_df(links)  # 各ワインの詳細ページにアクセスして情報を取得
     print(f"\n{len(df)}件のワイン情報を取得しました。")
 
-    # データフレームをCSVファイルに保存
-    df.to_csv(filename, index=False, encoding="utf-8-sig")
+    df.to_csv(
+        filename, index=False, encoding="utf-8-sig"
+    )  # データフレームをCSVファイルに保存
     print(f"{filename}に保存しました。")
 
 
@@ -68,38 +67,40 @@ def create_df(links):
 
 # ワインの名前を取得する関数
 def get_name():
-    selectors = [
-        "#__layout > div > div.flex.min-h-screen.flex-col > div.flex.flex-grow.flex-col.justify-start > div.pb-60px.md\:pb-20 > div > div > div.relative.mx-auto.mb-10.md\:mb-20.md\:flex.md\:justify-center > div.max-w-screen-sm.md\:relative.md\:flex-grow > section.mb-8.mt-5.md\:mb-10.md\:mt-0 > div.mb-7.flex.justify-between.md\:mb-8 > h1 > span.mb-2\.5.block",
-    ] * 20  # セレクタを20回繰り返して、安定性を向上させる
-    for selector in selectors:
+    selector = "#__layout > div > div.flex.min-h-screen.flex-col > div.flex.flex-grow.flex-col.justify-start > div.pb-60px.md\:pb-20 > div > div > div.relative.mx-auto.mb-10.md\:mb-20.md\:flex.md\:justify-center > div.max-w-screen-sm.md\:relative.md\:flex-grow > section.mb-8.mt-5.md\:mb-10.md\:mt-0 > div.mb-7.flex.justify-between.md\:mb-8 > h1 > span.mb-2\.5.block"
+    cnt = 0
+    while True:
+        cnt += 1
+        if cnt > 100:
+            raise Exception(
+                "ワインの名前が取得できませんでした。CSSセレクタを確認してください。"
+            )
         try:
             name = driver.find_element(By.CSS_SELECTOR, selector)
             return name.text
         except:
             continue
-    raise Exception(
-        "ワインの名前が見つかりませんでした。CSSセレクタを確認してください。"
-    )
 
 
 # ワインの説明を取得する関数
 def get_text():
-    selectors = [
-        "#__layout > div > div.flex.min-h-screen.flex-col > div.flex.flex-grow.flex-col.justify-start > div.pb-60px.md\:pb-20 > div > div > div:nth-child(3) > section > div.mb-4.md\:mb-8 > p"
-    ] * 20  # セレクタを20回繰り返して、安定性を向上させる
-    for selector in selectors:
+    selector = "#__layout > div > div.flex.min-h-screen.flex-col > div.flex.flex-grow.flex-col.justify-start > div.pb-60px.md\:pb-20 > div > div > div:nth-child(3) > section > div.mb-4.md\:mb-8 > p"
+    cnt = 0
+    while True:
+        cnt += 1
+        if cnt > 100:
+            raise Exception(
+                "ワインの説明が取得できませんでした。CSSセレクタを確認してください。"
+            )
         try:
             text = driver.find_element(By.CSS_SELECTOR, selector)
             return text.text
         except:
             continue
-    raise Exception(
-        "ワインの説明が見つかりませんでした。CSSセレクタを確認してください。"
-    )
 
 
 if __name__ == "__main__":
-    CHROMEDRIVER = "C:\chromedriver-win64\chromedriver.exe"
+    CHROMEDRIVER = "chromedriver-win64\chromedriver.exe"
     HOME_URL = "https://www.enoteca.co.jp/ranking/"
     CSV_FOLDER = "static/csv/"
 
